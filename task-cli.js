@@ -14,6 +14,10 @@ switch (command) {
     taskManager.add(args.join(' '));
     break;
 
+  case 'list':
+    taskManager.list();
+    break;
+
   default:
     console.error(`Unknown command: ${command}`);
     showHelp();

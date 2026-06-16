@@ -19,4 +19,22 @@ function add(description) {
   console.log(`Task added successfully (ID: ${task.id})`);
 }
 
-module.exports = { add };
+function list() {
+  const data = storage.readTasks();
+
+  if (data.tasks.length === 0) {
+    console.log('No tasks found');
+    return;
+  }
+
+  console.log('ID  Description           Status        Created');
+  console.log('--- -------------------- ------------- -------------------------');
+  data.tasks.forEach(task => {
+    const desc = task.description.padEnd(20).slice(0, 20);
+    const status = task.status.padEnd(13);
+    const date = new Date(task.createdAt).toLocaleString();
+    console.log(`${String(task.id).padEnd(3)} ${desc} ${status} ${date}`);
+  });
+}
+
+module.exports = { add, list };
