@@ -13,6 +13,12 @@ function readTasks() {
       writeTasks(initial);
       return initial;
     }
+    if (err instanceof SyntaxError) {
+      console.error('Error: tasks.json is corrupted. Starting fresh.');
+      const initial = { nextId: 1, tasks: [] };
+      writeTasks(initial);
+      return initial;
+    }
     throw err;
   }
 }

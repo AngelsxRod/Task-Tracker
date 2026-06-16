@@ -14,9 +14,16 @@ switch (command) {
     taskManager.add(args.join(' '));
     break;
 
-  case 'list':
-    taskManager.list();
+  case 'list': {
+    const filter = args[0];
+    const validFilters = ['done', 'todo', 'in-progress'];
+    if (filter && !validFilters.includes(filter)) {
+      console.error(`Error: Invalid status '${filter}'. Use: done, todo, or in-progress`);
+      process.exit(1);
+    }
+    taskManager.list(filter);
     break;
+  }
 
   case 'update': {
     const id = parseInt(args[0], 10);

@@ -19,22 +19,42 @@ function add(description) {
   console.log(`Task added successfully (ID: ${task.id})`);
 }
 
-function list() {
+function list(statusFilter) {
   const data = storage.readTasks();
 
-  if (data.tasks.length === 0) {
-    console.log('No tasks found');
+  let tasks = data.tasks;
+  if (statusFilter) {
+    tasks = tasks.filter(t => t.status === statusFilter);
+  }
+
+  if (tasks.length === 0) {
+    const msg = statusFilter ? `No tasks found with status '${statusFilter}'` : 'No tasks found';
+    console.log(msg);
     return;
   }
 
   console.log('ID  Description           Status        Created');
   console.log('--- -------------------- ------------- -------------------------');
-  data.tasks.forEach(task => {
+  tasks.forEach(task => {
     const desc = task.description.padEnd(20).slice(0, 20);
     const status = task.status.padEnd(13);
     const date = new Date(task.createdAt).toLocaleString();
     console.log(`${String(task.id).padEnd(3)} ${desc} ${status} ${date}`);
   });
+}
+
+function findTaskOrExit(id) {
+  if (isNaN(id)) {
+    console.error('Error: ID must be a number');
+    process.exit(1);
+  }
+  const data = storage.readTasks();
+  const task = data.tasks.find(t => t.id === id);
+  if (!task) {
+    console.error(`Error: Task with ID ${id} not found`);
+    process.exit(1);
+  }
+  return { data, task };
 }
 
 function update(id, description) {
@@ -43,14 +63,7 @@ function update(id, description) {
     process.exit(1);
   }
 
-  const data = storage.readTasks();
-  const task = data.tasks.find(t => t.id === id);
-
-  if (!task) {
-    console.error(`Error: Task with ID ${id} not found`);
-    process.exit(1);
-  }
-
+  const { data, task } = findTaskOrExit(id);
   task.description = description.trim();
   task.updatedAt = new Date().toISOString();
   storage.writeTasks(data);
@@ -58,28 +71,14 @@ function update(id, description) {
 }
 
 function deleteTask(id) {
-  const data = storage.readTasks();
-  const index = data.tasks.findIndex(t => t.id === id);
-
-  if (index === -1) {
-    console.error(`Error: Task with ID ${id} not found`);
-    process.exit(1);
-  }
-
-  data.tasks.splice(index, 1);
+  const { data } = findTaskOrExit(id);
+  data.tasks = data.tasks.filter(t => t.id !== id);
   storage.writeTasks(data);
   console.log(`Task deleted successfully (ID: ${id})`);
 }
 
 function markTask(id, status) {
-  const data = storage.readTasks();
-  const task = data.tasks.find(t => t.id === id);
-
-  if (!task) {
-    console.error(`Error: Task with ID ${id} not found`);
-    process.exit(1);
-  }
-
+  const { data, task } = findTaskOrExit(id);
   task.status = status;
   task.updatedAt = new Date().toISOString();
   storage.writeTasks(data);
