@@ -18,6 +18,31 @@ switch (command) {
     taskManager.list();
     break;
 
+  case 'update': {
+    const id = parseInt(args[0], 10);
+    const description = args.slice(1).join(' ');
+    taskManager.update(id, description);
+    break;
+  }
+
+  case 'delete': {
+    const id = parseInt(args[0], 10);
+    taskManager.deleteTask(id);
+    break;
+  }
+
+  case 'mark-in-progress': {
+    const id = parseInt(args[0], 10);
+    taskManager.markTask(id, 'in-progress');
+    break;
+  }
+
+  case 'mark-done': {
+    const id = parseInt(args[0], 10);
+    taskManager.markTask(id, 'done');
+    break;
+  }
+
   default:
     console.error(`Unknown command: ${command}`);
     showHelp();

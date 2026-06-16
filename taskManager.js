@@ -37,4 +37,53 @@ function list() {
   });
 }
 
-module.exports = { add, list };
+function update(id, description) {
+  if (!description || !description.trim()) {
+    console.error('Error: Task description is required');
+    process.exit(1);
+  }
+
+  const data = storage.readTasks();
+  const task = data.tasks.find(t => t.id === id);
+
+  if (!task) {
+    console.error(`Error: Task with ID ${id} not found`);
+    process.exit(1);
+  }
+
+  task.description = description.trim();
+  task.updatedAt = new Date().toISOString();
+  storage.writeTasks(data);
+  console.log(`Task updated successfully (ID: ${id})`);
+}
+
+function deleteTask(id) {
+  const data = storage.readTasks();
+  const index = data.tasks.findIndex(t => t.id === id);
+
+  if (index === -1) {
+    console.error(`Error: Task with ID ${id} not found`);
+    process.exit(1);
+  }
+
+  data.tasks.splice(index, 1);
+  storage.writeTasks(data);
+  console.log(`Task deleted successfully (ID: ${id})`);
+}
+
+function markTask(id, status) {
+  const data = storage.readTasks();
+  const task = data.tasks.find(t => t.id === id);
+
+  if (!task) {
+    console.error(`Error: Task with ID ${id} not found`);
+    process.exit(1);
+  }
+
+  task.status = status;
+  task.updatedAt = new Date().toISOString();
+  storage.writeTasks(data);
+  console.log(`Task ${id} marked as ${status}`);
+}
+
+module.exports = { add, list, update, deleteTask, markTask };
